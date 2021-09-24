@@ -10,19 +10,24 @@ enum Action { move_up = 0, move_down = 1, move_left = 2, move_right = 3, still =
 class Entity
 {
     public:
-        virtual void init(){};
+        virtual void init(void* init_d){};
         virtual void update(float dt){};
         virtual void render(){};
         virtual void handleEvent(SDL_Event event){};
+        virtual ~Entity(){};
 
         void setName(const std::string n) {name = n;};
         const std::string getName() {return name;};
 
         bool isDestroyed() { return destroyed; };
+        
+        void setType(const std::string n) {type = n;};
+        const std::string getType() {return type;};
     protected:
         std::string name;
-        bool destroyed;
+        bool destroyed = false;
         void* customData = nullptr;
+        std::string type;
 };
 
 class PlayerData
@@ -32,6 +37,7 @@ class PlayerData
         glm::vec2 pos = glm::vec2(0);
         glm::vec2 vel = glm::vec2(0);
         glm::vec2 acc = glm::vec2(0);
+        glm::vec2 box_dim = {32,32};
         ~PlayerData(){
             SDL_DestroyTexture(tex);
         };
@@ -41,10 +47,37 @@ class PlayerData
 class Player : public Entity
 {
     public:
-        void init() override;
+        void init(void* init_d) override;
         void update(float dt) override;
         void render() override;
         void handleEvent(SDL_Event event) override;
+        ~Player() override {
+            delete (PlayerData*)customData;
+        };
+};
+
+class ParticleData
+{
+    public:
+        glm::vec2 pos = glm::vec2(0);
+        glm::vec2 vel = glm::vec2(0);
+        glm::vec2 acc = glm::vec2(0);
+        int max_frame = 200;
+        int current_frame = 0;
+};
+
+class Particle : public Entity
+{
+    public:
+        void init(void* init_d) override;
+        void update(float dt) override;
+        void render() override;
+        void handleEvent(SDL_Event event) override {};
+        ~Particle() override 
+        {
+            std::cout << "delete particle: " << getName() <<  "!" << std::endl;
+            delete (ParticleData*)customData;
+        };
 };
 
 class EntityManager
@@ -59,5 +92,5 @@ class EntityManager
     private:
         EntityManager();
         static EntityManager* instance;
-        std::map<const std::string, std::shared_ptr<Entity> > entities;
+        std::map<const std::string, Entity* > entities;
 };

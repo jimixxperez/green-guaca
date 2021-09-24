@@ -32,7 +32,33 @@ void Game::init(std::string title, int xpos, int ypos, int width, int height, bo
         std::cout << SDL_GetError() << std::endl;
         entityManager = EntityManager::getInstance();
         Player* player = new Player();
+        player->setName("player");
+        player->init(new PlayerData());
+
+        ParticleData* p1_d = new ParticleData();
+        p1_d->max_frame = 200;
+        p1_d->vel = {1,0.5};
+        p1_d->pos = {20,400};
+        Particle* particle = new Particle();
+        //Particle* particle = new Particle({20,20}, {1,1});
+        particle->setName("particle1");
+        particle->init(p1_d);
+
+        auto p2_d = new ParticleData();
+        p2_d->max_frame = 80;
+        p2_d->vel = {0.5,0.5};
+        p2_d->pos = {400,200};
+        Particle* particle2 = new Particle();
+        //Particle* particle = new Particle({20,20}, {1,1});
+        particle2->setName("particle2");
+        particle2->init(p2_d);
+        // Particle* particle2 = new Particle({20,200}, {-1,1});
+        // particle2->setName("particle2");
+
         entityManager->addEntity(player);
+        entityManager->addEntity(particle);
+        //entityManager->addEntity(particle2);
+        //entityManager->addEntity(particle2);
         isRunning = true;
     }
     else 
@@ -74,7 +100,6 @@ void Game::render()
 {
     SDL_RenderClear(renderer);
     entityManager->render();
-
     SDL_RenderPresent(renderer);
 }
 
